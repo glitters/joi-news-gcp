@@ -28,16 +28,6 @@ data "google_compute_subnetwork" "subnet" {
 }
 
 ### Front end server
-data "template_file" "front_end_init_script" {
-  template = file("${path.module}/provision-front_end.sh")
-  vars = {
-    docker_image         = "${local.gcr_url}/front_end:latest"
-    quote_service_url    = "http://${google_compute_instance.quotes.network_interface.0.access_config.0.nat_ip}:8082",
-    newsfeed_service_url = "http://${google_compute_instance.newsfeed.network_interface.0.access_config.0.nat_ip}:8081",
-    static_url           = "https://storage.googleapis.com/${google_storage_bucket.news.name}"
-  }
-}
-
 resource "google_compute_instance" "front_end" {
   name         = "${var.prefix}-front-end"
   machine_type = var.machine_type
@@ -50,7 +40,12 @@ resource "google_compute_instance" "front_end" {
     }
   }
 
-  metadata_startup_script = data.template_file.front_end_init_script.rendered
+  metadata_startup_script = templatefile("${path.module}/provision-front_end.sh", {
+    docker_image         = "${local.gcr_url}/front_end:latest"
+    quote_service_url    = "http://${google_compute_instance.quotes.network_interface.0.access_config.0.nat_ip}:8082"
+    newsfeed_service_url = "http://${google_compute_instance.newsfeed.network_interface.0.access_config.0.nat_ip}:8081"
+    static_url           = "https://storage.googleapis.com/${google_storage_bucket.news.name}"
+  })
 
   network_interface {
     subnetwork = data.google_compute_subnetwork.subnet.self_link
@@ -82,12 +77,7 @@ resource "google_compute_firewall" "front_end" {
 ### end of front-end
 
 ### Quotes service deploy
-data "template_file" "quotes_init_script" {
-  template = file("${path.module}/provision-quotes.sh")
-  vars = {
-    docker_image = "${local.gcr_url}/quotes:latest"
-  }
-}
+
 
 resource "google_compute_firewall" "quotes" {
   name    = "quotes-firewall"
@@ -122,7 +112,9 @@ resource "google_compute_instance" "quotes" {
     }
   }
 
-  metadata_startup_script = data.template_file.quotes_init_script.rendered
+  metadata_startup_script = templatefile("${path.module}/provision-quotes.sh", {
+    docker_image = "${local.gcr_url}/quotes:latest"
+  })
 
   service_account {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
@@ -134,12 +126,7 @@ resource "google_compute_instance" "quotes" {
 ### end of quotes service
 
 ### Newsfeed service deploy
-data "template_file" "newsfeed_init_script" {
-  template = file("${path.module}/provision-newsfeed.sh")
-  vars = {
-    docker_image = "${local.gcr_url}/newsfeed:latest"
-  }
-}
+
 
 resource "google_compute_instance" "newsfeed" {
   name         = "${var.prefix}-newsfeed"
@@ -161,7 +148,9 @@ resource "google_compute_instance" "newsfeed" {
     }
   }
 
-  metadata_startup_script = data.template_file.newsfeed_init_script.rendered
+  metadata_startup_script = templatefile("${path.module}/provision-newsfeed.sh", {
+    docker_image = "${local.gcr_url}/newsfeed:latest"
+  })
 
   service_account {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
