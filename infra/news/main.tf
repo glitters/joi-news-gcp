@@ -13,7 +13,7 @@ resource "google_artifact_registry_repository_iam_binding" "viewer" {
   provider   = google-beta
   repository = "images"
   location   = "us-central1"
-  role       = "roles/artifactregistry.admin"
+  role       = "roles/artifactregistry.admin"                                   ### Change to roles/artifactregistry.reader
   members = [
     "serviceAccount:${google_service_account.joi-news-instances.email}",
   ]
@@ -42,7 +42,7 @@ resource "google_compute_instance" "front_end" {
 
   metadata_startup_script = templatefile("${path.module}/provision-front_end.sh", {
     docker_image         = "${local.gcr_url}/front_end:latest"
-    quote_service_url    = "http://${google_compute_instance.quotes.network_interface.0.access_config.0.nat_ip}:8082"
+    quote_service_url    = "http://${google_compute_instance.quotes.network_interface.0.access_config.0.nat_ip}:8082"        ### Change to network_ip
     newsfeed_service_url = "http://${google_compute_instance.newsfeed.network_interface.0.access_config.0.nat_ip}:8081"
     static_url           = "https://storage.googleapis.com/${google_storage_bucket.news.name}"
   })
@@ -68,7 +68,7 @@ resource "google_compute_firewall" "front_end" {
 
   allow {
     protocol = "tcp"
-    ports    = ["8080"]
+    ports    = ["8080"]                                                             ### Consider to change to port 80
   }
 
   source_ranges = ["0.0.0.0/0"]
@@ -88,7 +88,7 @@ resource "google_compute_firewall" "quotes" {
     ports    = ["8082"]
   }
 
-  source_ranges = ["0.0.0.0/0"]
+  source_ranges = ["0.0.0.0/0"]                                                     ### Consider to change to 10.5.0.0/16, private IP addressing
   target_tags   = ["quotes"]
 }
 
@@ -168,7 +168,7 @@ resource "google_compute_firewall" "newsfeed" {
     ports    = ["8081"]
   }
 
-  source_ranges = ["0.0.0.0/0"]
+  source_ranges = ["0.0.0.0/0"]                                                         ### Consider to change to 10.5.0.0/16, private IP addressing
   target_tags   = ["newsfeed"]
 }
 
