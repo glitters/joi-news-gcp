@@ -42,8 +42,8 @@ resource "google_compute_instance" "front_end" {
 
   metadata_startup_script = templatefile("${path.module}/provision-front_end.sh", {
     docker_image         = "${local.gcr_url}/front_end:latest"
-    quote_service_url    = "http://${google_compute_instance.quotes.network_interface.0.access_config.0.nat_ip}:8082"        ### Change to network_ip
-    newsfeed_service_url = "http://${google_compute_instance.newsfeed.network_interface.0.access_config.0.nat_ip}:8081"
+    quote_service_url    = "http://${google_compute_instance.quotes.network_interface.0.access_config.0.nat_ip}:8082"        ### Change to network_ip and also https
+    newsfeed_service_url = "http://${google_compute_instance.newsfeed.network_interface.0.access_config.0.nat_ip}:8081"      ### Change to network_ip and also https
     static_url           = "https://storage.googleapis.com/${google_storage_bucket.news.name}"
   })
 
@@ -130,8 +130,8 @@ resource "google_compute_instance" "quotes" {
 
 resource "google_compute_instance" "newsfeed" {
   name         = "${var.prefix}-newsfeed"
-  machine_type = var.machine_type
-  zone         = "${var.region}-a"
+  machine_type = var.machine_type                       ### f1-micro instances - shares vCPU. Under load it will throttle hard. Conside to use Cloud Run
+  zone         = "${var.region}-a"                      ### Single zone deployment - no availability or load distribution. Consider to use managed instance group with load balancer which currently do not have.
   tags         = ["newsfeed"]
 
   boot_disk {
