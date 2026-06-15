@@ -9,17 +9,18 @@ variable "project" {
 provider "google" {
   project     = var.project
   region      = var.region
-  credentials = "../.interviewee-creds.json"
+  # credentials = "../.interviewee-creds.json"
 }
 provider "google-beta" {
   project     = var.project
   region      = var.region
-  credentials = "../.interviewee-creds.json"
+  # credentials = "../.interviewee-creds.json"
 }
 
 terraform {
   backend "gcs" {
     prefix      = "base"
-    credentials = "../.interviewee-creds.json"
+    bucket      = "joi-news-tfstate"
+    # credentials = "../.interviewee-creds.json"
   }
 }

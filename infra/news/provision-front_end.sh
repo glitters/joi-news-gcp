@@ -18,5 +18,5 @@ docker run -d \
   -e NEWSFEED_SERVICE_URL=${newsfeed_service_url} \
   -e STATIC_URL=${static_url} \
   -e NEWSFEED_SERVICE_TOKEN="T1&eWbYXNWG1w1^YGKDPxAWJ@^et^&kX" \
-  -p 8080:8080 \
+  -p 80:8080 \
   ${docker_image}

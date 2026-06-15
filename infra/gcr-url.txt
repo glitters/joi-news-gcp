@@ -1,0 +1,1 @@
+us-central1-docker.pkg.dev/tw-joi-news-gcp/images

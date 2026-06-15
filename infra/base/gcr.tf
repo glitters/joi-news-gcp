@@ -12,7 +12,7 @@ resource "google_artifact_registry_repository_iam_member" "viewer" {
   provider   = google-beta
   location   = "us-central1"
   repository = google_artifact_registry_repository.repository.name
-  role       = "roles/artifactregistry.admin"                                                  ### Change to roles/artifactregistry.reader
+  role       = "roles/artifactregistry.reader"                                                  ### Change to roles/artifactregistry.reader
   member     = "serviceAccount:${data.google_compute_default_service_account.default.email}"
 }
 
